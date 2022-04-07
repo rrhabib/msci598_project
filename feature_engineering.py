@@ -3,11 +3,29 @@ import re
 import nltk
 import numpy as np
 from sklearn import feature_extraction
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity, linear_kernel
 from tqdm import tqdm
 
 
 _wnl = nltk.WordNetLemmatizer()
 
+def cos_similarity(h, b):
+    corpus = h + b
+    for i in range(0, len(corpus)):
+        corpus[i] = clean(corpus[i])
+    #clean_x = get_tokenized_lemmas(clean_x)
+    print('Building TfidfVectorizer')
+    Vectorizer = TfidfVectorizer(max_features=8000, stop_words="english").fit(corpus)
+    cos_sim1 = []
+    for j in range(0,len(h)):
+        head_tfidf = Vectorizer.transform([h[j]])
+        body_tfidf = Vectorizer.transform([b[j]])
+        cos_sim1.append(cosine_similarity(head_tfidf,body_tfidf)[0])
+    cos_sim2 = np.asarray(cos_sim1).reshape(-1,1)
+    return cos_sim2
 
 def normalize_word(w):
     return _wnl.lemmatize(w).lower()
